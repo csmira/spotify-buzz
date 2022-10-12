@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        @apply font-sans text-light;
+    }
+}
+
+@layer utilities {
+    .title-1 {
+        @apply text-4xl
+    }
+    .title-2 {
+        @apply text-2xl
+    }
+    .title-3 {
+        @apply text-xl
+    }
+    .text-regular {
+        @apply text-base
+    }
+    .text-small {
+        @apply text-xs
+    }
+}

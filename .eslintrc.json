@@ -21,5 +21,6 @@
         "react",
         "@typescript-eslint"
     ],
+    "ignorePatterns": ["tailwind.config.js", "postcss.config.js"],
     "rules": {}
 }
