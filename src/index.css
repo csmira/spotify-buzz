@@ -4,24 +4,33 @@
 
 @layer base {
     html {
-        @apply font-sans text-dark;
+        @apply font-sans text-light font-normal;
+    }
+    html, body, #root {
+        @apply h-full w-full;
+    }
+}
+
+@layer components {
+    .full-screen-gradient-background {
+        @apply h-full w-full from-secondary to-dark bg-gradient-to-t bg-secondary
     }
 }
 
 @layer utilities {
     .title-1 {
-        @apply text-4xl
+        @apply text-4xl leading-10
     }
     .title-2 {
-        @apply text-2xl
+        @apply text-2xl leading-8
     }
     .title-3 {
-        @apply text-xl
+        @apply text-xl leading-7
     }
     .text-regular {
-        @apply text-base
+        @apply text-base leading-5
     }
     .text-small {
-        @apply text-xs
+        @apply text-xs leading-4
     }
 }
