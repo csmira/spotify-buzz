@@ -4,7 +4,7 @@
 
 @layer base {
     html {
-        @apply font-sans text-light;
+        @apply font-sans text-dark;
     }
 }
 

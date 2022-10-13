@@ -10,6 +10,8 @@
     "@types/node": "^16.11.65",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "axios": "^1.1.2",
+    "crypto-js": "^4.1.1",
     "framer-motion": "^7.5.3",
     "gh-pages": "^4.0.0",
     "react": "^18.2.0",
@@ -46,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.40.0",
     "cssnano": "^5.1.13",
