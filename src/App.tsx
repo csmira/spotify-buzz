@@ -1,13 +1,13 @@
 import React from 'react';
 import { RouterProvider } from 'react-router-dom';
-import SpotifyAuthorization from './components/SpotifyAuthorization';
+import SpotifyAuthorizationProvider from './components/SpotifyAuthorizationProvider';
 import Router from './routes/Router';
 
 const App = () => {
     return (
-        <SpotifyAuthorization>
+        <SpotifyAuthorizationProvider>
             <RouterProvider router={Router} />
-        </SpotifyAuthorization>
+        </SpotifyAuthorizationProvider>
     );
 };
 

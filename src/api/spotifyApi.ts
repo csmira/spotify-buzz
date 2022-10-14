@@ -5,7 +5,7 @@ const spotifyApi = axios.create({
 });
 
 export const setSpotifyApiAccessToken = (accessToken: string) => {
-    spotifyApi.defaults.headers.Authorization = `Bearer ${accessToken}`;
+    spotifyApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 };
 
 export default spotifyApi;
