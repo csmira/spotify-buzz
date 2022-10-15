@@ -49,6 +49,26 @@ export const snakeCaseToCamelCaseObject = (snakeCaseObject: any): any => {
     return snakeCaseObject;
 };
 
+export const shuffleArray = (array: any[]): any[] => {
+    const shuffledArray = [...array];
+    for (let i = array.length - 1; i > 0; i -= 1) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [shuffledArray[i], shuffledArray[randomIndex]] = [shuffledArray[randomIndex], shuffledArray[i]];
+    }
+    return shuffledArray;
+};
+
+export const reduceFrequencyDomainByHalf = (frequencyData: Uint8Array) => {
+    const reducedFrequencyData = new Uint8Array(Math.floor(frequencyData.length / 2));
+
+    for (let i = 0; i < frequencyData.length; i += 2) {
+        const reducedIndex = Math.floor(i / 2);
+        reducedFrequencyData[reducedIndex] = Math.floor((frequencyData[i] + frequencyData[i + 1]) / 2);
+    }
+
+    return reducedFrequencyData;
+};
+
 export const setCodeVerifier = (codeVerifier: string): void => localStorage.setItem('codeVerifier', codeVerifier);
 export const getCodeVerifier = (): string | null => localStorage.getItem('codeVerifier');
 
