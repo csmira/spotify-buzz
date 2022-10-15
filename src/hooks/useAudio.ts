@@ -1,13 +1,15 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 
+const FREQUENCY_SIZE = 32;
+
 let audioContext: AudioContext;
 let gainNode: GainNode;
 let analyserNode: AnalyserNode;
 
 const useAudio = () => {
     const [audio, setAudio] = useState<AudioBufferSourceNode>();
-    const [audioFrequencyData, setAudioFrequencyData] = useState<Uint8Array>(new Uint8Array());
+    const [audioFrequencyData, setAudioFrequencyData] = useState<Uint8Array>(new Uint8Array(FREQUENCY_SIZE / 2));
     const audioFrequencyIntervalId = useRef<NodeJS.Timer>();
 
     const initializeAudioNodes = () => {
@@ -17,15 +19,15 @@ const useAudio = () => {
         gainNode.gain.value = 0.01;
 
         analyserNode = new AnalyserNode(audioContext);
-        analyserNode.fftSize = 32;
+        analyserNode.fftSize = FREQUENCY_SIZE;
     };
 
     const startAnalyzingAudioFrequency = () => {
         audioFrequencyIntervalId.current = setInterval(() => {
-            const frequencyData = new Uint8Array(analyserNode.frequencyBinCount);
+            const frequencyData = new Uint8Array(FREQUENCY_SIZE / 2);
             analyserNode.getByteFrequencyData(frequencyData);
             setAudioFrequencyData(frequencyData);
-        }, 1000);
+        }, 150);
     };
 
     const stopAnalyzingAudioFrequency = () => {
@@ -61,9 +63,12 @@ const useAudio = () => {
 
         return () => {
             audio?.removeEventListener('ended', stop);
-            stopAnalyzingAudioFrequency();
         };
     }, [audio]);
+
+    useEffect(() => {
+        return () => stopAnalyzingAudioFrequency();
+    }, []);
 
     return {
         play,

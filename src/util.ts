@@ -69,6 +69,10 @@ export const reduceFrequencyDomainByHalf = (frequencyData: Uint8Array) => {
     return reducedFrequencyData;
 };
 
+export const trimFrequencyDomainEnd = (frequencyData: Uint8Array) => {
+    return frequencyData.slice(0, Math.ceil(frequencyData.length * 0.625));
+};
+
 export const setCodeVerifier = (codeVerifier: string): void => localStorage.setItem('codeVerifier', codeVerifier);
 export const getCodeVerifier = (): string | null => localStorage.getItem('codeVerifier');
 
