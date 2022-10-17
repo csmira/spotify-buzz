@@ -38,7 +38,7 @@ const useAudio = () => {
         }
     };
 
-    const play = async (audioUrl: string) => {
+    const play = async (audioUrl: string, duration?: number) => {
         if (!isAllowedToPlay) {
             return;
         }
@@ -48,7 +48,7 @@ const useAudio = () => {
         audioBufferSource.buffer = await audioContext.decodeAudioData(audioBufferData);
 
         audioBufferSource.connect(gainNode).connect(analyserNode).connect(audioContext.destination);
-        audioBufferSource.start();
+        audioBufferSource.start(0, 0, duration);
         setAudio(audioBufferSource);
         startAnalyzingAudioFrequency();
     };

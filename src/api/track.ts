@@ -20,7 +20,7 @@ const getUserSavedTracks = async (offset: number): Promise<SavedTracksResponse> 
     });
     const response = await spotifyApi.get('/me/tracks', { params: queryParameters });
 
-    const filteredTracks = response.data.items.filter((item: SpotifyApi.SavedTrackObject) => !item.track.preview_url);
+    const filteredTracks = response.data.items.filter((item: SpotifyApi.SavedTrackObject) => item.track.preview_url);
     const mappedTracks = filteredTracks.map(({ track }: SpotifyApi.SavedTrackObject) => ({
         id: track.id,
         previewUrl: track.preview_url,

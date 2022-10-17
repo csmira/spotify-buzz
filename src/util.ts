@@ -69,6 +69,8 @@ export const reduceFrequencyDomainByHalf = (frequencyData: Uint8Array) => {
     return reducedFrequencyData;
 };
 
+export const getRandomElementFromArray = (array: any[]): any => array[Math.floor(Math.random() * array.length)];
+
 export const trimFrequencyDomainEnd = (frequencyData: Uint8Array) => {
     return frequencyData.slice(0, Math.ceil(frequencyData.length * 0.625));
 };

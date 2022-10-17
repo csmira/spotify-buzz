@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from '../PrimaryButton';
 
 interface Props {
     track: Track;

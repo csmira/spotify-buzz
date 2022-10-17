@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import cn from 'classnames';
-import { reduceFrequencyDomainByHalf, trimFrequencyDomainEnd } from '../util';
+import { reduceFrequencyDomainByHalf, trimFrequencyDomainEnd } from '../../util';
 
 const MAX_SCALE_ANIMATION = 0.3;
 const FREQUENCY_RANGE = 20;
