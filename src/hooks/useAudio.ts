@@ -8,18 +8,20 @@ let gainNode: GainNode;
 let analyserNode: AnalyserNode;
 
 const useAudio = () => {
-    const [audio, setAudio] = useState<AudioBufferSourceNode>();
     const [audioFrequencyData, setAudioFrequencyData] = useState<Uint8Array>(new Uint8Array(FREQUENCY_SIZE / 2));
     const audioFrequencyIntervalId = useRef<NodeJS.Timer>();
+    const [audio, setAudio] = useState<AudioBufferSourceNode>();
+    const [isAllowedToPlay, setIsAllowedToPlay] = useState(audioContext !== undefined);
 
     const initializeAudioNodes = () => {
         audioContext = new AudioContext();
 
         gainNode = new GainNode(audioContext);
-        gainNode.gain.value = 0.01;
+        gainNode.gain.value = 0.1;
 
         analyserNode = new AnalyserNode(audioContext);
         analyserNode.fftSize = FREQUENCY_SIZE;
+        setIsAllowedToPlay(true);
     };
 
     const startAnalyzingAudioFrequency = () => {
@@ -37,8 +39,8 @@ const useAudio = () => {
     };
 
     const play = async (audioUrl: string) => {
-        if (!audioContext) {
-            initializeAudioNodes();
+        if (!isAllowedToPlay) {
+            return;
         }
 
         const { data: audioBufferData } = await axios.get(audioUrl, { responseType: 'arraybuffer' });
@@ -57,16 +59,6 @@ const useAudio = () => {
     };
 
     useEffect(() => {
-        if (audio) {
-            audio.addEventListener('ended', stop);
-        }
-
-        return () => {
-            audio?.removeEventListener('ended', stop);
-        };
-    }, [audio]);
-
-    useEffect(() => {
         return () => stopAnalyzingAudioFrequency();
     }, []);
 
@@ -74,6 +66,8 @@ const useAudio = () => {
         play,
         stop,
         audioFrequencyData,
+        initializeAudioNodes,
+        isAllowedToPlay,
     };
 };
 
