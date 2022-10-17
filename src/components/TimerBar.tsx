@@ -1,12 +1,31 @@
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
-import { ReactComponent as TimerIcon } from '../icons/timer.svg';
+import cn from 'classnames';
+import { ReactComponent as TimerIcon } from '../assets/icons/timer.svg';
+
+const variants = {
+    continue: (time: number) => ({
+        x: '-100%',
+        transition: {
+            ease: 'linear',
+            duration: time,
+        },
+    }),
+    reset: {
+        x: '0%',
+        transition: { ease: 'linear', duration: 1 },
+    },
+};
 
 interface Props {
     maxTime: number;
+    className?: string;
+    isPaused?: boolean;
+    isStopped?: boolean;
 }
-const TimerBar = ({ maxTime }: Props) => {
+const TimerBar = ({ className, maxTime, isPaused, isStopped }: Props) => {
     const [timeRemaining, setTimeRemaining] = useState(maxTime);
+    const animationControls = useAnimationControls();
     const timerRef = useRef<NodeJS.Timer>();
 
     useEffect(() => {
@@ -16,20 +35,39 @@ const TimerBar = ({ maxTime }: Props) => {
     }, [timeRemaining]);
 
     useEffect(() => {
-        timerRef.current = setInterval(() => {
-            setTimeRemaining((previousTime) => previousTime - 1);
-        }, 1000);
+        if (isPaused) {
+            animationControls.stop();
+            clearInterval(timerRef.current);
+        } else {
+            timerRef.current = setInterval(() => {
+                setTimeRemaining((previousTime) => previousTime - 1);
+            }, 1000);
+            animationControls.start(variants.continue(timeRemaining));
+        }
 
-        return () => clearInterval(timerRef.current);
-    }, []);
+        if (isStopped) {
+            clearInterval(timerRef.current);
+            animationControls.start(variants.reset);
+            setTimeRemaining(maxTime);
+        }
+
+        return () => {
+            clearInterval(timerRef.current);
+        };
+    }, [isPaused, isStopped]);
 
     return (
-        <div className="relative flex items-center justify-center overflow-hidden rounded-full border border-primary px-2 py-1">
+        <div
+            className={cn(
+                'relative flex items-center justify-center overflow-hidden rounded-full border border-primary px-2 py-1',
+                className
+            )}
+        >
             <span className="title-2 grow-1 z-10 font-semibold">{timeRemaining}</span>
             <TimerIcon className="absolute right-2 z-10 mt-px" width={20} height={20} />
             <motion.div
                 initial={{ x: '0%' }}
-                animate={{ x: '-100%', transition: { ease: 'linear', duration: maxTime } }}
+                animate={animationControls}
                 className="absolute left-0 h-full w-full bg-gradient-to-r from-secondary to-primary"
             />
         </div>
