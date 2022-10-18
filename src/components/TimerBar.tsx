@@ -61,7 +61,7 @@ const TimerBar = ({ className, maxTime, isPaused, isStopped, onTimeEnd }: Props)
     return (
         <div
             className={cn(
-                'relative flex items-center justify-center overflow-hidden rounded-full border border-primary px-2 py-1',
+                'relative z-20 flex items-center justify-center overflow-hidden rounded-full border border-primary px-2 py-1',
                 className
             )}
         >
