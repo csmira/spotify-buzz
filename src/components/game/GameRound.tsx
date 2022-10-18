@@ -7,6 +7,8 @@ import TrackCard from './TrackCard';
 import * as incorrectAnimation from '../../assets/lottie/x.json';
 import * as correctAnimation from '../../assets/lottie/checkmark.json';
 import LottieAnimation from '../LottieAnimation';
+import PrimaryButton from '../PrimaryButton';
+import { ReactComponent as PlayArrowIcon } from '../../assets/icons/play-arrow.svg';
 
 const ROUND_TIME_SECONDS = 15;
 
@@ -17,11 +19,11 @@ interface Props {
 }
 
 const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
-    const [inProgress, setInProgress] = useState(true);
+    const [inProgress, setInProgress] = useState(false);
     const [feedbackAnimation, setFeedbackAnimation] = useState<any>(correctAnimation);
     const [isTimerBarPaused, setIsTimerBarPaused] = useState(false);
     const gameTimer = useRef<NodeJS.Timeout>();
-    const { play, stop, audioFrequencyData } = useAudio();
+    const { play, stop, audioFrequencyData, isAllowedToPlay, initializeAudioNodes } = useAudio();
 
     const handleTrackCardClick = (selectedTrack: Track) => {
         if (!inProgress) {
@@ -47,15 +49,17 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
     const handleAnimationFinished = () => onRoundFinished(feedbackAnimation === correctAnimation);
 
     useEffect(() => {
-        play(correctTrack.previewUrl, ROUND_TIME_SECONDS);
-        gameTimer.current = setTimeout(handleGameTimerEnd, ROUND_TIME_SECONDS * 1000);
-        setIsTimerBarPaused(false);
-        setInProgress(true);
+        if (isAllowedToPlay) {
+            play(correctTrack.previewUrl, ROUND_TIME_SECONDS);
+            gameTimer.current = setTimeout(handleGameTimerEnd, ROUND_TIME_SECONDS * 1000);
+            setIsTimerBarPaused(false);
+            setInProgress(true);
+        }
 
         return () => {
             clearTimeout(gameTimer.current);
         };
-    }, [correctTrack]);
+    }, [correctTrack, isAllowedToPlay]);
 
     return (
         <div className="flex h-full w-full flex-col">
@@ -66,12 +70,22 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
                 isStopped={!inProgress && !isTimerBarPaused}
             />
             <div className="flex flex-grow items-center justify-center">
-                {inProgress && (
+                {!isAllowedToPlay && (
+                    <motion.div exit={{ opacity: 0 }}>
+                        <PrimaryButton
+                            onClick={initializeAudioNodes}
+                            className="flex h-40 w-40 items-center justify-center"
+                        >
+                            <PlayArrowIcon className="ml-3 fill-light" />
+                        </PrimaryButton>
+                    </motion.div>
+                )}
+                {inProgress && isAllowedToPlay && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <CircularAudioSpectrum frequencyData={audioFrequencyData} />
                     </motion.div>
                 )}
-                {!inProgress && (
+                {!inProgress && isAllowedToPlay && (
                     <motion.div exit={{ opacity: 0 }}>
                         <LottieAnimation
                             onFinished={handleAnimationFinished}
