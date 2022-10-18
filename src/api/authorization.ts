@@ -7,10 +7,10 @@ import {
     snakeCaseToCamelCaseObject,
 } from '../util';
 
-type AccessTokenResponse = {
-    accessToken: string;
+export type AccessTokenResponse = {
+    accessToken: AccessToken;
     expiresIn: number;
-    refreshToken: string;
+    refreshToken: RefreshToken;
 };
 
 const CLIENT_ID = '3319ea2c185a4f3d9d8ae366a9e968c9';
@@ -48,13 +48,13 @@ export const getAccessToken = async (codeVerifier: string, accessCode: string): 
     return { accessToken, expiresIn, refreshToken };
 };
 
-export const getRefreshedAccessToken = async (refreshToken: string): Promise<AccessTokenResponse> => {
+export const getRefreshedAccessToken = async (refreshToken: RefreshToken): Promise<AccessTokenResponse> => {
     const formUrlEncodedData = new URLSearchParams({
         grant_type: 'refresh_token',
         client_id: CLIENT_ID,
         refresh_token: refreshToken,
     });
     const response = await axios.post(spotifyAuthorizationUrl('/api/token'), formUrlEncodedData);
-    const { accessToken, expiresIn } = snakeCaseToCamelCaseObject(response.data);
-    return { accessToken, expiresIn, refreshToken };
+    const { accessToken, expiresIn, refreshToken: updatedRefreshToken } = snakeCaseToCamelCaseObject(response.data);
+    return { accessToken, expiresIn, refreshToken: updatedRefreshToken };
 };

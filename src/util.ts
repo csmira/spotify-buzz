@@ -78,5 +78,6 @@ export const trimFrequencyDomainEnd = (frequencyData: Uint8Array) => {
 export const setCodeVerifier = (codeVerifier: string): void => localStorage.setItem('codeVerifier', codeVerifier);
 export const getCodeVerifier = (): string | null => localStorage.getItem('codeVerifier');
 
-export const setRefreshToken = (refreshToken: string): void => localStorage.setItem('refreshToken', refreshToken);
-export const getRefreshToken = (): string | null => localStorage.getItem('refreshToken');
+export const setRefreshTokenInStorage = (refreshToken: string): void =>
+    localStorage.setItem('refreshToken', refreshToken);
+export const getRefreshTokenFromStorage = (): string | null => localStorage.getItem('refreshToken');

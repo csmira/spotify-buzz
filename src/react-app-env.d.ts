@@ -7,3 +7,6 @@ type Track = {
     artistNames: string[];
     image: string;
 };
+
+type RefreshToken = string;
+type AccessToken = string;

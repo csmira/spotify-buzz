@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import GameScreen from '../screens/GameScreen';
 import LandingScreen from '../screens/LandingScreen';
 import paths from './paths';
+import ProtectedRoute from './ProtectedRoute';
 
 const Router = createBrowserRouter([
     {
@@ -11,7 +12,11 @@ const Router = createBrowserRouter([
     },
     {
         path: paths.GAME,
-        element: <GameScreen />,
+        element: (
+            <ProtectedRoute>
+                <GameScreen />
+            </ProtectedRoute>
+        ),
     },
 ]);
 

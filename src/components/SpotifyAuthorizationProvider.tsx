@@ -1,50 +1,69 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { getAccessToken } from '../api/authorization';
-import { setSpotifyApiAccessToken } from '../api/spotifyApi';
-import { getCodeVerifier, setRefreshToken } from '../util';
-
-interface Props {
-    children: JSX.Element;
-}
+import { AccessTokenResponse, getAccessToken, getRefreshedAccessToken } from '../api/authorization';
+import { setSpotifyApiAccessToken, setSpotifyApiAuthorizationInterceptor } from '../api/spotifyApi';
+import { getCodeVerifier, getRefreshTokenFromStorage, setRefreshTokenInStorage } from '../util';
 
 export const SpotifyAuthorizationContext = createContext({
     isAuthenticated: false,
     isLoading: false,
 });
 
+interface Props {
+    children: JSX.Element;
+}
+
 const SpotifyAuthorizationProvider = ({ children }: Props) => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [refreshToken, setRefreshToken] = useState<RefreshToken | null>(getRefreshTokenFromStorage());
     const context = useMemo(() => ({ isAuthenticated, isLoading }), [isAuthenticated, isLoading]);
 
     const urlSearchParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlSearchParams.get('code');
+    const error = urlSearchParams.get('error');
 
     const codeVerifier = getCodeVerifier();
 
-    const setupAuthorization = async () => {
-        if (authorizationCode && codeVerifier) {
-            setIsLoading(true);
-            try {
-                const { accessToken, refreshToken } = await getAccessToken(codeVerifier, authorizationCode);
-                setSpotifyApiAccessToken(accessToken);
-                setIsAuthenticated(true);
-                setRefreshToken(refreshToken);
-            } catch (error) {
-                // show error
-                console.log(error);
-            }
-            setIsLoading(false);
-        } else {
-            // show error
+    const setAccessAndRefreshTokens = async (getAccessAndRefreshTokens: () => Promise<AccessTokenResponse>) => {
+        try {
+            const { accessToken, refreshToken: updatedRefreshToken } = await getAccessAndRefreshTokens();
+            setSpotifyApiAccessToken(accessToken);
+            setRefreshToken(updatedRefreshToken);
+            setRefreshTokenInStorage(updatedRefreshToken);
+            setIsAuthenticated(true);
+            return refreshToken;
+        } catch (ex) {
+            setIsAuthenticated(false);
+            return null;
         }
+    };
+
+    const setupInitialAuthorization = async () => {
+        setIsLoading(true);
+
+        if (refreshToken) {
+            await setAccessAndRefreshTokens(() => getRefreshedAccessToken(refreshToken));
+        } else if (authorizationCode && codeVerifier) {
+            await setAccessAndRefreshTokens(() => getAccessToken(codeVerifier, authorizationCode));
+        } else if (error) {
+            setIsAuthenticated(false);
+        }
+        setIsLoading(false);
     };
 
     useEffect(() => {
         if (!isAuthenticated) {
-            setupAuthorization();
+            setupInitialAuthorization();
         }
     }, []);
+
+    useEffect(() => {
+        if (refreshToken) {
+            setSpotifyApiAuthorizationInterceptor(() =>
+                setAccessAndRefreshTokens(() => getRefreshedAccessToken(refreshToken))
+            );
+        }
+    }, [refreshToken]);
 
     return <SpotifyAuthorizationContext.Provider value={context}>{children}</SpotifyAuthorizationContext.Provider>;
 };
