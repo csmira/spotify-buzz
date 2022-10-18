@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
+import LoaderFullScreen from '../components/LoaderFullScreen';
 import { SpotifyAuthorizationContext } from '../components/SpotifyAuthorizationProvider';
 import paths from './paths';
 
@@ -10,8 +11,7 @@ const ProtectedRoute = ({ children }: Props) => {
     const { isAuthenticated, isLoading } = useContext(SpotifyAuthorizationContext);
 
     if (isLoading) {
-        // TODO: create loading screen
-        return <div className="bg-red h-full w-full">loading auth</div>;
+        return <LoaderFullScreen />;
     }
 
     if (!isAuthenticated && !isLoading) {

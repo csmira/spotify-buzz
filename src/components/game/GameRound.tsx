@@ -9,6 +9,7 @@ import * as correctAnimation from '../../assets/lottie/checkmark.json';
 import LottieAnimation from '../LottieAnimation';
 import PrimaryButton from '../PrimaryButton';
 import { ReactComponent as PlayArrowIcon } from '../../assets/icons/play-arrow.svg';
+import Loader from '../Loader';
 
 const ROUND_TIME_SECONDS = 15;
 
@@ -80,7 +81,8 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
                         </PrimaryButton>
                     </motion.div>
                 )}
-                {(inProgress || isLoading) && isAllowedToPlay && (
+                {isLoading && isAllowedToPlay && <Loader />}
+                {inProgress && isAllowedToPlay && !isLoading && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <CircularAudioSpectrum frequencyData={audioFrequencyData} />
                     </motion.div>

@@ -2,13 +2,14 @@ import React from 'react';
 import Lottie from 'react-lottie';
 
 interface Props {
-    onFinished: () => void;
+    onFinished?: () => void;
     animation: any;
     className?: string;
+    loop?: boolean;
 }
-const LottieAnimation = ({ onFinished, animation, className }: Props) => {
+const LottieAnimation = ({ onFinished, animation, className, loop }: Props) => {
     const defaultOptions = {
-        loop: false,
+        loop: loop ?? false,
         autoplay: true,
         animationData: animation,
         rendererSettings: {
@@ -19,12 +20,14 @@ const LottieAnimation = ({ onFinished, animation, className }: Props) => {
         <div className={className}>
             <Lottie
                 options={defaultOptions}
-                eventListeners={[
-                    {
-                        eventName: 'complete',
-                        callback: onFinished,
-                    },
-                ]}
+                eventListeners={
+                    onFinished && [
+                        {
+                            eventName: 'complete',
+                            callback: onFinished,
+                        },
+                    ]
+                }
             />
         </div>
     );
