@@ -19,17 +19,19 @@ const variants = {
 
 interface Props {
     maxTime: number;
+    onTimeEnd: () => void;
     className?: string;
     isPaused?: boolean;
     isStopped?: boolean;
 }
-const TimerBar = ({ className, maxTime, isPaused, isStopped }: Props) => {
+const TimerBar = ({ className, maxTime, isPaused, isStopped, onTimeEnd }: Props) => {
     const [timeRemaining, setTimeRemaining] = useState(maxTime);
     const animationControls = useAnimationControls();
     const timerRef = useRef<NodeJS.Timer>();
 
     useEffect(() => {
         if (timeRemaining <= 0) {
+            onTimeEnd();
             clearInterval(timerRef.current);
         }
     }, [timeRemaining]);
@@ -42,7 +44,7 @@ const TimerBar = ({ className, maxTime, isPaused, isStopped }: Props) => {
             timerRef.current = setInterval(() => {
                 setTimeRemaining((previousTime) => previousTime - 1);
             }, 1000);
-            animationControls.start(variants.continue(timeRemaining));
+            animationControls.start(variants.continue(timeRemaining + 1));
         }
 
         if (isStopped) {

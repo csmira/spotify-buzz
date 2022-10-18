@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useAudio from '../../hooks/useAudio';
 import CircularAudioSpectrum from './CircularAudioSpectrum';
 import TimerBar from '../TimerBar';
@@ -20,9 +20,9 @@ interface Props {
 
 const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
     const [inProgress, setInProgress] = useState(false);
-    const [feedbackAnimation, setFeedbackAnimation] = useState<any>(correctAnimation);
+    const [isLoading, setIsLoading] = useState(true);
     const [isTimerBarPaused, setIsTimerBarPaused] = useState(false);
-    const gameTimer = useRef<NodeJS.Timeout>();
+    const [feedbackAnimation, setFeedbackAnimation] = useState<any>(correctAnimation);
     const { play, stop, audioFrequencyData, isAllowedToPlay, initializeAudioNodes } = useAudio();
 
     const handleTrackCardClick = (selectedTrack: Track) => {
@@ -43,6 +43,7 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
     const handleGameTimerEnd = () => {
         stop();
         setFeedbackAnimation(incorrectAnimation);
+        setIsTimerBarPaused(true);
         setInProgress(false);
     };
 
@@ -50,21 +51,20 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
 
     useEffect(() => {
         if (isAllowedToPlay) {
-            play(correctTrack.previewUrl, ROUND_TIME_SECONDS);
-            gameTimer.current = setTimeout(handleGameTimerEnd, ROUND_TIME_SECONDS * 1000);
-            setIsTimerBarPaused(false);
-            setInProgress(true);
+            setIsLoading(true);
+            play(correctTrack.previewUrl, ROUND_TIME_SECONDS, () => {
+                setIsTimerBarPaused(false);
+                setInProgress(true);
+                setIsLoading(false);
+            });
         }
-
-        return () => {
-            clearTimeout(gameTimer.current);
-        };
     }, [correctTrack, isAllowedToPlay]);
 
     return (
         <div className="flex h-full w-full flex-col">
             <TimerBar
                 maxTime={ROUND_TIME_SECONDS}
+                onTimeEnd={handleGameTimerEnd}
                 className="mt-4 w-full"
                 isPaused={isTimerBarPaused}
                 isStopped={!inProgress && !isTimerBarPaused}
@@ -80,12 +80,12 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
                         </PrimaryButton>
                     </motion.div>
                 )}
-                {inProgress && isAllowedToPlay && (
+                {(inProgress || isLoading) && isAllowedToPlay && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <CircularAudioSpectrum frequencyData={audioFrequencyData} />
                     </motion.div>
                 )}
-                {!inProgress && isAllowedToPlay && (
+                {!inProgress && isAllowedToPlay && !isLoading && (
                     <motion.div exit={{ opacity: 0 }}>
                         <LottieAnimation
                             onFinished={handleAnimationFinished}
