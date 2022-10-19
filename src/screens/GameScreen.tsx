@@ -1,40 +1,59 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import getUserSavedTracks from '../api/track';
 import GameOverDialog from '../components/game/GameOverDialog';
 import GameRound from '../components/game/GameRound';
-import PrimaryButton from '../components/PrimaryButton';
-import { SpotifyAuthorizationContext } from '../components/SpotifyAuthorizationProvider';
-import useAudio from '../hooks/useAudio';
+import TrophyDialog from '../components/game/TrophyDialog';
+import LoaderFullScreen from '../components/LoaderFullScreen';
 import { getRandomElementFromArray, shuffleArray } from '../util';
 
+const TRACK_FETCH_LIMIT = 50;
+const SELECTED_TRACKS_AMOUNT = 4;
+
 const GameScreen = () => {
-    const { isAuthenticated } = useContext(SpotifyAuthorizationContext);
     const [tracks, setTracks] = useState<Track[]>([]);
     const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
-    const [correctTrack, setCorrectTrack] = useState<Track | null>(null!);
+    const [correctTrack, setCorrectTrack] = useState<Track | null>(null);
     const [tracksOffset, setTracksOffset] = useState(0);
+    const [hasMoreTracks, setHasMoreTracks] = useState(true);
     const [correctlyGuessedTracks, setCorrectlyGuessedTracks] = useState<Track[]>([]);
     const [isGameOver, setIsGameOver] = useState(false);
-    const { initializeAudioNodes, isAllowedToPlay } = useAudio();
 
-    const fetchNextTracks = useCallback(async () => {
+    const fetchMoreTracks = useCallback(async () => {
+        if (!hasMoreTracks) {
+            return [];
+        }
+
         try {
-            const { tracks: newTracks, hasMore } = await getUserSavedTracks(tracksOffset);
+            const { tracks: newTracks, hasMore } = await getUserSavedTracks(tracksOffset, TRACK_FETCH_LIMIT);
             if (hasMore) {
-                setTracksOffset((previousOffset) => previousOffset + 50);
+                setTracksOffset((previousOffset) => previousOffset + TRACK_FETCH_LIMIT);
             }
+            setHasMoreTracks(hasMore);
             return newTracks;
         } catch (error) {
             console.log(error);
             // TODO handle error
         }
         return [];
-    }, [tracksOffset]);
+    }, [tracksOffset, hasMoreTracks]);
 
-    const setupNextRound = (currentTracks: Track[]) => {
-        const tracksWithoutCorrectTrack = currentTracks.filter((track) => track.id !== correctTrack?.id);
-        const nextSelectedTracks = shuffleArray(tracksWithoutCorrectTrack).slice(0, 4);
-        const nextCorrectAnswer = getRandomElementFromArray(nextSelectedTracks);
+    const setupNextRound = (currentTracks: Track[], previousCorrectTrack: Track | null) => {
+        let nextSelectedTracks: Track[];
+        let nextCorrectAnswer: Track;
+        const tracksWithoutCorrectTrack = currentTracks.filter((track) => track.id !== previousCorrectTrack?.id);
+
+        // Use previously guessed tracks to fill up remaining space so we always show 4 tracks
+        if (tracksWithoutCorrectTrack.length < SELECTED_TRACKS_AMOUNT) {
+            const reusedTracksCount = SELECTED_TRACKS_AMOUNT - tracksWithoutCorrectTrack.length;
+            nextSelectedTracks = shuffleArray([
+                ...tracksWithoutCorrectTrack,
+                ...correctlyGuessedTracks.slice(0, reusedTracksCount),
+            ]);
+            nextCorrectAnswer = getRandomElementFromArray(tracksWithoutCorrectTrack);
+        } else {
+            nextSelectedTracks = shuffleArray(tracksWithoutCorrectTrack).slice(0, 4);
+            nextCorrectAnswer = getRandomElementFromArray(nextSelectedTracks);
+        }
 
         setTracks(tracksWithoutCorrectTrack);
         setSelectedTracks(nextSelectedTracks);
@@ -43,17 +62,27 @@ const GameScreen = () => {
 
     const restartGame = () => {
         const combinedTracks = [...tracks, ...correctlyGuessedTracks];
-        setupNextRound(combinedTracks);
+        setCorrectTrack(null);
+        setupNextRound(combinedTracks, null);
         setIsGameOver(false);
         setCorrectlyGuessedTracks([]);
     };
 
-    const handleRoundFinished = (isCorrectAnswer: boolean) => {
-        if (isCorrectAnswer) {
-            if (correctTrack) {
-                setCorrectlyGuessedTracks([...correctlyGuessedTracks, correctTrack]);
+    const handleRoundFinished = async (isCorrectAnswer: boolean) => {
+        if (isCorrectAnswer && correctTrack) {
+            setCorrectlyGuessedTracks([...correctlyGuessedTracks, correctTrack]);
+
+            if (tracks.length === 1) {
+                setIsGameOver(true);
+                setTracks([]);
+            } else {
+                setupNextRound(tracks, correctTrack);
             }
-            setupNextRound(tracks);
+
+            if (tracks.length < 10) {
+                const fetchedTracks = await fetchMoreTracks();
+                setTracks((previousTracks) => [...previousTracks, ...fetchedTracks]);
+            }
         } else {
             setIsGameOver(true);
         }
@@ -61,22 +90,14 @@ const GameScreen = () => {
 
     useEffect(() => {
         const setupInitalGame = async () => {
-            const newTracks = await fetchNextTracks();
-            setupNextRound(newTracks);
+            const newTracks = await fetchMoreTracks();
+            setupNextRound(newTracks, null);
         };
-        if (isAuthenticated) {
-            setupInitalGame();
-        }
-    }, [isAuthenticated]);
+        setupInitalGame();
+    }, []);
 
     if (!correctTrack) {
-        // TODO: handle loading state or when user doesn't have any tracks
-        return <div>loading</div>;
-    }
-
-    if (!isAllowedToPlay) {
-        // TODO: handle audio context creation from user event
-        return <PrimaryButton onClick={initializeAudioNodes}>Initialize Nodes</PrimaryButton>;
+        return <LoaderFullScreen />;
     }
 
     return (
@@ -89,8 +110,13 @@ const GameScreen = () => {
                 />
             )}
             <GameOverDialog
-                open={isGameOver}
+                open={isGameOver && tracks.length > 0}
                 track={correctTrack}
+                onPlayAgain={restartGame}
+                totalCorrectTracks={correctlyGuessedTracks.length}
+            />
+            <TrophyDialog
+                open={isGameOver && tracks.length === 0}
                 onPlayAgain={restartGame}
                 totalCorrectTracks={correctlyGuessedTracks.length}
             />

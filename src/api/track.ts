@@ -5,10 +5,10 @@ type SavedTracksResponse = {
     hasMore: boolean;
 };
 
-const getUserSavedTracks = async (offset: number): Promise<SavedTracksResponse> => {
+const getUserSavedTracks = async (offset: number, limit: number): Promise<SavedTracksResponse> => {
     const queryParameters = new URLSearchParams({
         offset: offset.toString(),
-        limit: '50',
+        limit: limit.toString(),
     });
     const response = await spotifyApi.get('/me/tracks', { params: queryParameters });
 
