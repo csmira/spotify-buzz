@@ -97,7 +97,7 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
                     </motion.div>
                 )}
             </div>
-            <div className="mt-auto mb-4 grid grid-cols-2 grid-rows-2 gap-3">
+            <div className="mt-auto mb-4 grid flex-1 grid-cols-2 grid-rows-2 gap-3">
                 {trackChoices.map((track) => (
                     <motion.div layoutId={track.id} key={track.id}>
                         <TrackCard track={track} onClick={() => handleTrackCardClick(track)} />

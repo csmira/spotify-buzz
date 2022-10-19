@@ -1,13 +1,5 @@
 import spotifyApi from './spotifyApi';
 
-type Track = {
-    id: string;
-    previewUrl: string;
-    name: string;
-    artistNames: string[];
-    image: string;
-};
-
 type SavedTracksResponse = {
     tracks: Track[];
     hasMore: boolean;
@@ -27,6 +19,7 @@ const getUserSavedTracks = async (offset: number): Promise<SavedTracksResponse> 
         name: track.name,
         artistNames: track.artists.map(({ name }: SpotifyApi.ArtistObjectSimplified) => name),
         image: track.album.images[0].url,
+        placeholderImage: track.album.images[track.album.images.length - 1].url,
     }));
 
     return {

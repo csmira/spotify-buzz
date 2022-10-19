@@ -6,6 +6,7 @@ type Track = {
     name: string;
     artistNames: string[];
     image: string;
+    placeholderImage: string;
 };
 
 type RefreshToken = string;
