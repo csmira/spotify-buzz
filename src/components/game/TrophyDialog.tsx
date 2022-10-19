@@ -29,7 +29,7 @@ const TrophyDialog = ({ onPlayAgain, totalCorrectTracks, open }: Props) => {
                 exit={{ opacity: 0 }}
             >
                 <h1 className="title-1 text-center font-bold">Congratulations</h1>
-                <p className="title-3 mt-4">{`You guessed all ${totalCorrectTracks} songs correctly`}</p>
+                <p className="title-3 mt-4 text-center">{`You guessed all ${totalCorrectTracks} songs correctly`}</p>
                 <LottieAnimation animation={trophyAnimation} />
                 <PrimaryButton className="mt-8" onClick={handlePlayAgainButtonClick}>
                     Play again

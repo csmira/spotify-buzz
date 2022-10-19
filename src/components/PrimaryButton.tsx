@@ -13,7 +13,7 @@ const PrimaryButton = forwardRef<HTMLButtonElement, Props>(
             <button
                 type="button"
                 ref={ref}
-                className={cn('rounded-full bg-primary py-4 px-8', className)}
+                className={cn('rounded-full bg-primary py-4 px-8 drop-shadow-lg', className)}
                 onClick={onClick}
             >
                 {children}

@@ -61,16 +61,16 @@ const TimerBar = ({ className, maxTime, isPaused, isStopped, onTimeEnd }: Props)
     return (
         <div
             className={cn(
-                'relative z-20 flex items-center justify-center overflow-hidden rounded-full border border-primary px-2 py-1',
+                'relative z-20 flex items-center justify-center overflow-hidden rounded-full border border-secondary px-2 py-1',
                 className
             )}
         >
             <span className="title-2 grow-1 z-10 font-semibold">{timeRemaining}</span>
-            <TimerIcon className="absolute right-2 z-10 mt-px" width={20} height={20} />
+            <TimerIcon className="absolute right-3 z-10 mt-px" width={20} height={20} />
             <motion.div
                 initial={{ x: '0%' }}
                 animate={animationControls}
-                className="absolute left-0 h-full w-full bg-gradient-to-r from-secondary to-primary"
+                className="timer-bar-gradient-background absolute left-0 h-full w-full"
             />
         </div>
     );
