@@ -81,3 +81,5 @@ export const getCodeVerifier = (): string | null => localStorage.getItem('codeVe
 export const setRefreshTokenInStorage = (refreshToken: string): void =>
     localStorage.setItem('refreshToken', refreshToken);
 export const getRefreshTokenFromStorage = (): string | null => localStorage.getItem('refreshToken');
+
+export const removeRefreshTokenFromStorage = () => localStorage.removeItem('refreshToken');

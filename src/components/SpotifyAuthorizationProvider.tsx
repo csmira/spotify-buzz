@@ -1,7 +1,12 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react';
 import { AccessTokenResponse, getAccessToken, getRefreshedAccessToken } from '../api/authorization';
 import { setSpotifyApiAccessToken, setSpotifyApiAuthorizationInterceptor } from '../api/spotifyApi';
-import { getCodeVerifier, getRefreshTokenFromStorage, setRefreshTokenInStorage } from '../util';
+import {
+    getCodeVerifier,
+    getRefreshTokenFromStorage,
+    removeRefreshTokenFromStorage,
+    setRefreshTokenInStorage,
+} from '../util';
 
 export const SpotifyAuthorizationContext = createContext({
     isAuthenticated: false,
@@ -34,6 +39,7 @@ const SpotifyAuthorizationProvider = ({ children }: Props) => {
             return refreshToken;
         } catch (ex) {
             setIsAuthenticated(false);
+            removeRefreshTokenFromStorage();
             return null;
         }
     };
