@@ -13,7 +13,13 @@ module.exports = {
       sans: ['"Noto Sans"', 'sans-serif'],
       serif: ['"Fugaz One"', 'serif'],
     },
-    extend: {},
+    screens: {
+      tablet: '500px',
+      desktop: '1024px',
+    },
+    extend: {
+
+    },
   },
   plugins: [require('@tailwindcss/line-clamp')],
 }

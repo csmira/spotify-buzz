@@ -11,7 +11,7 @@ import PrimaryButton from '../PrimaryButton';
 import { ReactComponent as PlayArrowIcon } from '../../assets/icons/play-arrow.svg';
 import Loader from '../Loader';
 
-const ROUND_TIME_SECONDS = 15;
+const ROUND_TIME_SECONDS = 10;
 
 interface Props {
     trackChoices: Track[];
@@ -62,15 +62,15 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
     }, [correctTrack, isAllowedToPlay]);
 
     return (
-        <div className="flex h-full w-full flex-col">
+        <div className="flex h-full w-full flex-col tablet:px-[15%] desktop:px-[30%]">
             <TimerBar
                 maxTime={ROUND_TIME_SECONDS}
                 onTimeEnd={handleGameTimerEnd}
-                className="mt-4 w-full"
+                className="my-4 w-full flex-none"
                 isPaused={isTimerBarPaused}
                 isStopped={!inProgress && !isTimerBarPaused}
             />
-            <div className="flex flex-grow items-center justify-center">
+            <div className="flex grow items-center justify-center">
                 {!isAllowedToPlay && (
                     <motion.div exit={{ opacity: 0 }}>
                         <PrimaryButton
@@ -97,7 +97,7 @@ const GameRound = ({ trackChoices, correctTrack, onRoundFinished }: Props) => {
                     </motion.div>
                 )}
             </div>
-            <div className="mt-auto mb-4 grid flex-1 grid-cols-2 grid-rows-2 gap-3">
+            <div className="mb-4 mt-auto grid flex-1 grid-cols-2 grid-rows-2 gap-3 desktop:px-[20%]">
                 {trackChoices.map((track) => (
                     <motion.div layoutId={track.id} key={track.id}>
                         <TrackCard track={track} onClick={() => handleTrackCardClick(track)} />
