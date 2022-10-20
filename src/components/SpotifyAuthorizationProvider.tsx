@@ -51,6 +51,7 @@ const SpotifyAuthorizationProvider = ({ children }: Props) => {
             await setAccessAndRefreshTokens(() => getRefreshedAccessToken(refreshToken));
         } else if (authorizationCode && codeVerifier) {
             await setAccessAndRefreshTokens(() => getAccessToken(codeVerifier, authorizationCode));
+            window.history.replaceState({}, '', window.location.origin + window.location.pathname);
         } else if (error) {
             setIsAuthenticated(false);
         }

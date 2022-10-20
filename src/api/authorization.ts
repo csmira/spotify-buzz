@@ -13,7 +13,7 @@ export type AccessTokenResponse = {
     refreshToken: RefreshToken;
 };
 
-const CLIENT_ID = '3319ea2c185a4f3d9d8ae366a9e968c9';
+const CLIENT_ID = `${process.env.REACT_APP_CLIENT_ID}`;
 const REDIRECT_URI = `${window.location.origin}/game`;
 const spotifyAuthorizationUrl = (endpoint: string) => `https://accounts.spotify.com${endpoint}`;
 
